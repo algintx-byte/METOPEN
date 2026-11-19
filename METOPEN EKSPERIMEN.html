@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Penelitian</title>
+<style>
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#1e293b;background:#f8fafc;line-height:1.6;margin:0}
+.box{max-width:640px;margin:0 auto;padding:24px}.wide{max-width:900px}
+h1{font-size:1.5rem;margin:0 0 8px}h2{font-size:1.15rem;margin:20px 0 8px}.sm{font-size:.875rem;color:#475569}
+button{background:#1d4ed8;color:#fff;border:0;border-radius:6px;padding:10px 18px;font-size:1rem;cursor:pointer;margin:4px 6px 4px 0}
+button:disabled{opacity:.4;cursor:default}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #1d4ed8;outline-offset:2px}
+video{width:100%;background:#000;border-radius:6px}fieldset{border:0;padding:0;margin:0 0 20px}legend{font-weight:600;margin-bottom:8px}
+label.opt{display:inline-block;border:1px solid #cbd5e1;background:#fff;border-radius:6px;padding:6px 14px;margin:0 8px 8px 0;cursor:pointer}
+label.opt:has(input:checked){background:#1d4ed8;color:#fff;border-color:#1d4ed8}label.opt input{position:absolute;opacity:0}
+label.opt:has(input:focus-visible){outline:2px solid #1d4ed8;outline-offset:2px}
+textarea,input[type=text],input[type=email],input[type=password]{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:6px;padding:8px;margin-bottom:8px;font:inherit}
+.err{background:#fef2f2;color:#991b1b;padding:10px;border-radius:6px}.req{color:#b91c1c}
+table{width:100%;border-collapse:collapse;font-size:.875rem}td,th{text-align:left;padding:4px 8px;border-top:1px solid #e2e8f0}
+</style></head>
+<body><main id="app"></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+// ====== ISI DUA BARIS INI (Supabase > Project Settings > API) ======
+const SUPABASE_URL = 'https://uaaqrfboaeadngamedzq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5LJSTpS4IYY4utmL8AEv3g_OOYWubTU';
+// ===================================================================
+const app = document.getElementById('app'), PID = 'pid', $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const show = h => { app.innerHTML = h };
+const errBox = m => m ? `<p class="err" role="alert">${esc(m)}</p>` : '';
+let sb, cfg = {};
+// Semua aksi partisipan lewat RPC; urutan & tahap diputuskan database, bukan browser.
+const rpc = async (fn, args) => { const { data, error } = await sb.rpc(fn, args); if (error) throw new Error(error.message); return data };
+window.onhashchange = () => location.reload();
+
+async function init() {
+  if (SUPABASE_URL.startsWith('ISI_')) return show('<div class="box"><p class="err">Isi SUPABASE_URL dan SUPABASE_KEY di bagian atas file index.html.</p></div>');
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  if (location.hash === '#admin') return admin();
+  try { const { data } = await sb.from('settings').select('*'); (data || []).forEach(r => cfg[r.key] = r.value) } catch (e) {}
+  const pid = localStorage.getItem(PID); pid ? load(pid) : consent();
+}
+
+// ================= PARTISIPAN =================
+function consent() {
+  show(`<div class="box"><h1>${esc(cfg.title)}</h1><p>${esc(cfg.desc)}</p><p class="sm">Perkiraan durasi: ${esc(cfg.duration)}</p>
+  <h2>Persetujuan partisipasi</h2><p style="white-space:pre-line">${esc(cfg.consent)}</p>
+  <label><input type="checkbox" id="ag"> Saya telah membaca penjelasan di atas dan bersedia berpartisipasi secara sukarela.</label>
+  <div id="m"></div><p><button id="go" disabled>Mulai</button></p></div>`);
+  $('ag').onchange = () => $('go').disabled = !$('ag').checked;
+  $('go').onclick = async () => {
+    $('go').disabled = true; $('go').textContent = 'Menyiapkan…'
+    try { const r = await rpc('start_session'); localStorage.setItem(PID, r.pid); load(r.pid) }
+    catch (e) { $('m').innerHTML = errBox(e.message); $('go').disabled = false; $('go').textContent = 'Mulai' }
+  };
+}
+async function load(pid) {
+  try {
+    const st = await rpc('get_state', { p: pid });
+    if (st.stage === 'done') return show(`<div class="box"><h1>Terima kasih</h1><p style="white-space:pre-line">${esc(cfg.thanks)}</p><p class="sm">Kode partisipasi Anda: <b>${esc(st.code)}</b></p></div>`);
+    st.stage[0] === 'v' ? video(pid, st) : form(pid, st);
+  } catch (e) {
+    if (/tidak valid/.test(e.message)) { localStorage.removeItem(PID); return consent() }
+    show(`<div class="box">${errBox(e.message)}<button id="r">Muat ulang</button></div>`); $('r').onclick = () => load(pid);
+  }
+}
+function video(pid, st) {
+  if (!st.video_url) return show(`<div class="box">${errBox('Video belum tersedia. Hubungi peneliti.')}</div>`);
+  show(`<div class="box"><h2>Video ${st.order} dari 2</h2><video id="v" src="${esc(st.video_url)}" controls controlsList="nodownload noplaybackrate" disablePictureInPicture></video>
+  <p class="sm">Tonton video sampai selesai. Kuesioner akan muncul otomatis setelahnya.</p><div id="m"></div></div>`);
+  const v = $('v'); let max = 0;
+  v.ontimeupdate = () => { if (v.currentTime > max && v.currentTime - max < 2) max = v.currentTime };
+  v.onseeking = () => { if (v.currentTime > max + .5) v.currentTime = max };
+  const hb = setInterval(() => { if (!v.paused) rpc('log_video', { p: pid, ord: st.order, dur: v.currentTime, done: false }).catch(() => {}) }, 10000);
+  const fin = async () => {
+    try { $('m').innerHTML = ''; await rpc('log_video', { p: pid, ord: st.order, dur: v.duration, done: true }); clearInterval(hb); load(pid) }
+    catch (e) { $('m').innerHTML = errBox(e.message) + '<button id="rt">Coba kirim lagi</button>'; $('rt').onclick = fin }
+  };
+  v.onended = fin;
+}
+async function form(pid, st) {
+  const { data: qs, error } = await sb.from('questions').select('*').order('display_order').order('question_id');
+  if (error) return show(`<div class="box">${errBox(error.message)}</div>`);
+  const key = `draft-${pid}-${st.order}`, a = JSON.parse(localStorage.getItem(key) || '{}'); // draf lokal agar tidak hilang
+  const opts = q => q.question_type === 'choice' ? (q.answer_options || []) : Array.from({ length: q.question_type === 'likert5' ? 5 : 7 }, (_, i) => String(i + 1));
+  show(`<div class="box"><h2>Kuesioner setelah video ${st.order}</h2>${qs.map(q => `<fieldset><legend>${esc(q.question_text)}${q.is_required ? ' <b class="req">*</b>' : ''}</legend>${
+    q.question_type === 'text' ? `<textarea rows="3" data-q="${q.question_id}">${esc(a[q.question_id])}</textarea>`
+    : opts(q).map(o => `<label class="opt"><input type="radio" name="q${q.question_id}" data-q="${q.question_id}" value="${esc(o)}" ${a[q.question_id] === o ? 'checked' : ''}>${esc(o)}</label>`).join('')}</fieldset>`).join('')}
+  <div id="m"></div><button id="s">Simpan jawaban</button></div>`);
+  app.querySelectorAll('[data-q]').forEach(el => el.oninput = () => { a[el.dataset.q] = el.value; localStorage.setItem(key, JSON.stringify(a)) });
+  $('s').onclick = async () => {
+    const miss = qs.filter(q => q.is_required && !String(a[q.question_id] ?? '').trim()).length;
+    if (miss) return $('m').innerHTML = errBox(`${miss} pertanyaan wajib belum dijawab.`);
+    $('s').disabled = true; $('s').textContent = 'Menyimpan…';
+    try { await rpc('submit_posttest', { p: pid, ord: st.order, ans: a }); localStorage.removeItem(key); load(pid) }
+    catch (e) { $('m').innerHTML = errBox(e.message); $('s').disabled = false; $('s').textContent = 'Simpan jawaban' }
+  };
+}
+
+// ================= ADMIN (index.html#admin) =================
+const EXPORTS = [
+  ['responses', 'responses', 'participant_id,video_id,video_order,question_id,answer,submitted_at,participants(code),questions(question_text)', 'response_id'],
+  ['assignments', 'random_assignments', 'participant_id,block_number,sequence_code,first_video_id,second_video_id,assigned_at,participants(code,completion_status)', 'assignment_id'],
+  ['video_logs', 'video_logs', 'participant_id,video_id,video_order,started_at,completed_at,watch_duration,completion_status,participants(code)', 'log_id']];
+const flat = r => Object.fromEntries(Object.entries(r).flatMap(([k, v]) => v && typeof v === 'object' && !Array.isArray(v) ? Object.entries(v).map(([k2, v2]) => [`${k}_${k2}`, v2]) : [[k, v]]));
+async function fetchAll(table, sel, ord) { const out = []; for (let f = 0; ; f += 1000) { const { data, error } = await sb.from(table).select(sel).order(ord).range(f, f + 999); if (error) throw new Error(error.message); out.push(...data); if (data.length < 1000) return out } }
+const toCsv = rows => { const h = Object.keys(rows[0] || {}), q = v => `"${String(v ?? '').replace(/"/g, '""')}"`; return '\uFEFF' + [h.join(','), ...rows.map(r => h.map(k => q(r[k])).join(','))].join('\n') };
+const download = (n, t) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([t], { type: 'text/csv' })); a.download = n; a.click() };
+
+async function admin() {
+  const { data: s } = await sb.auth.getSession(); if (!s.session) return login();
+  const { data } = await sb.from('admins').select('user_id'); // RLS: hanya admin yang melihat baris
+  data && data.length ? dash() : login('Akun ini bukan admin.');
+}
+function login(m = '') {
+  show(`<div class="box" style="max-width:380px"><h1>Masuk peneliti</h1><input type="email" id="em" placeholder="Email"><input type="password" id="pw" placeholder="Kata sandi"><div id="m">${errBox(m)}</div><button id="li">Masuk</button></div>`);
+  $('li').onclick = async () => { const { error } = await sb.auth.signInWithPassword({ email: $('em').value, password: $('pw').value }); error ? $('m').innerHTML = errBox(error.message) : admin() };
+}
+async function dash(m = '') {
+  const [p, v] = await Promise.all([
+    sb.from('participants').select('code,completion_status,created_at,random_assignments(block_number,sequence_code,first_video_id,second_video_id)').order('created_at', { ascending: false }).limit(300),
+    sb.from('videos').select('*').order('video_id')]);
+  const rows = p.data || [], as = r => Array.isArray(r.random_assignments) ? r.random_assignments[0] : r.random_assignments, cnt = {};
+  rows.forEach(r => { const x = as(r); if (x) cnt[x.sequence_code] = (cnt[x.sequence_code] || 0) + 1 });
+  show(`<div class="box wide"><h1>Dashboard peneliti</h1><div id="m">${errBox(m)}</div>
+  <h2>Video (A–D)</h2>${(v.data || []).map(x => `<p><b>${x.video_id}</b> <input type="file" accept="video/mp4" data-v="${x.video_id}"> <span class="sm">${esc(x.video_url) || 'belum diunggah'}</span></p>`).join('')}
+  <h2>Ekspor data (CSV)</h2>${EXPORTS.map((e, i) => `<button data-e="${i}">${e[0]}</button>`).join('')}
+  <h2>Progres: ${rows.length} partisipan, ${rows.filter(r => r.completion_status === 'completed').length} selesai</h2>
+  <p class="sm">Alokasi per urutan (seq 1–12): ${Array.from({ length: 12 }, (_, i) => `${i + 1}:${cnt[i + 1] || 0}`).join('  ')}</p>
+  <table><tr><th>Kode</th><th>Status</th><th>Blok</th><th>Urutan</th><th>Dibuat</th></tr>${rows.map(r => { const a = as(r) || {}; return `<tr><td>${esc(r.code)}</td><td>${esc(r.completion_status)}</td><td>${esc(a.block_number)}</td><td>${esc(a.first_video_id)}→${esc(a.second_video_id)}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>` }).join('')}</table>
+  <p><button id="rf">Muat ulang</button><button id="lo">Keluar</button></p></div>`);
+  $('rf').onclick = () => dash(); $('lo').onclick = async () => { await sb.auth.signOut(); login() };
+  app.querySelectorAll('[data-v]').forEach(el => el.onchange = async () => { // nama berkas netral: a.mp4 … d.mp4
+    const id = el.dataset.v, path = id.toLowerCase() + '.mp4', f = el.files[0]; if (!f) return;
+    $('m').innerHTML = '<p class="sm">Mengunggah…</p>';
+    const up = await sb.storage.from('videos').upload(path, f, { upsert: true, contentType: 'video/mp4' });
+    if (up.error) return $('m').innerHTML = errBox(up.error.message);
+    const url = sb.storage.from('videos').getPublicUrl(path).data.publicUrl + '?v=' + Date.now();
+    const u = await sb.from('videos').update({ video_url: url }).eq('video_id', id); dash(u.error ? u.error.message : '');
+  });
+  app.querySelectorAll('[data-e]').forEach(b => b.onclick = async () => { const [n, t, s, o] = EXPORTS[b.dataset.e]; try { download(n + '.csv', toCsv((await fetchAll(t, s, o)).map(flat))) } catch (e) { $('m').innerHTML = errBox(e.message) } });
+}
+init();
+</script></body></html>
