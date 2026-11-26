@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PENELITIAN PSIKOLOGI</title>
+<style>
+:root{--ink:#0f172a;--muted:#64748b;--brand:#4338ca;--brand2:#0d9488;--line:#e2e8f0}
+*{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:linear-gradient(180deg,#e0e7ff 0,#f1f5f9 380px) no-repeat,#f1f5f9;line-height:1.65;margin:0;min-height:100vh}
+.box{max-width:680px;margin:28px auto;padding:28px;background:#fff;border-radius:18px;box-shadow:0 10px 30px rgba(67,56,202,.12),0 1px 3px rgba(15,23,42,.08)}.wide{max-width:960px}
+.tag{display:inline-block;background:#eef2ff;color:var(--brand);font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px;margin-bottom:8px}
+h1{font-size:1.65rem;line-height:1.25;margin:0 0 10px}h2{font-size:1.1rem;margin:24px 0 10px}.sm{font-size:.875rem;color:var(--muted)}
+.prog{margin-bottom:18px}.bar{height:6px;background:#e2e8f0;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand2));border-radius:99px;transition:width .4s}.prog p{margin:6px 0 0}
+.consent{white-space:pre-line;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:14px;max-height:380px;overflow:auto;font-size:.95rem}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:14px 0}.chk input{margin-top:6px;width:18px;height:18px;accent-color:var(--brand)}
+button{background:linear-gradient(135deg,var(--brand),#6366f1);color:#fff;border:0;border-radius:12px;padding:13px 22px;font-size:1rem;font-weight:600;cursor:pointer;margin:4px 8px 4px 0;box-shadow:0 4px 12px rgba(67,56,202,.3);transition:transform .15s,box-shadow .15s}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 16px rgba(67,56,202,.35)}button:disabled{opacity:.4;cursor:default;box-shadow:none}
+button.ghost{background:#fff;color:var(--brand);border:1.5px solid #c7d2fe;box-shadow:none}
+button:focus-visible,input:focus-visible{outline:3px solid #a5b4fc;outline-offset:2px}
+video{width:100%;background:#000;border-radius:14px;box-shadow:0 6px 20px rgba(15,23,42,.25)}
+fieldset{border:0;padding:0;margin:0 0 14px;min-width:0}legend{padding:0}.fl{display:block;font-weight:600;margin-bottom:8px}
+.chips{display:flex;gap:10px;flex-wrap:wrap}.chip{position:relative;border:1.5px solid #cbd5e1;border-radius:12px;padding:10px 22px;cursor:pointer;background:#fff;font-weight:500}.chip input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.chip:has(input:checked){border-color:var(--brand);background:#eef2ff;color:var(--brand);font-weight:700}.chip:has(input:focus-visible){outline:3px solid #a5b4fc;outline-offset:2px}
+p.intro{background:#eef2ff;color:#312e81;border-radius:12px;padding:12px 14px;margin:0 0 16px}
+fieldset.it{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:14px 12px;margin-bottom:12px}
+.sd{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px 12px}.sd .l{text-align:right}.sd .r{text-align:left}.sd .l,.sd .r{font-weight:600}
+.pts{display:flex;gap:6px}.pt{display:flex;flex-direction:column;align-items:center;min-width:34px;padding:4px 0;cursor:pointer;font-size:.875rem;color:var(--muted)}
+.pt input{appearance:none;-webkit-appearance:none;width:26px;height:26px;margin:4px 0 0;border:2px solid #94a3b8;border-radius:50%;background:#fff;cursor:pointer;transition:border-color .12s,background .12s}
+.pt input:hover{border-color:var(--brand)}.pt input:checked{border-color:var(--brand);background:radial-gradient(circle,var(--brand) 0 45%,#fff 50%)}
+fieldset.bad{outline:2px solid #b91c1c;outline-offset:3px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+input[type=text],input[type=email],input[type=password]{width:100%;border:1.5px solid #cbd5e1;border-radius:12px;padding:12px;margin-bottom:8px;font:inherit;background:#fff}
+input[type=text]:focus,input[type=email]:focus,input[type=password]:focus{border-color:var(--brand)}
+.err{background:#fef2f2;color:#991b1b;padding:10px 12px;border-radius:10px}.req{color:#b91c1c}
+.warn{background:#fef9c3;color:#713f12;padding:8px 10px;border-radius:10px;font-size:.875rem}
+.sc{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.875rem}td,th{text-align:left;padding:6px 8px;border-top:1px solid var(--line);white-space:nowrap}
+@media(max-width:560px){.box{margin:12px;padding:20px}.sd{grid-template-columns:1fr 1fr}.sd .l{grid-column:1;grid-row:1}.sd .r{grid-column:2;grid-row:1;text-align:right}.sd .pts{grid-column:1/3;grid-row:2;justify-content:space-between}}
+</style></head>
+<body><main id="app"></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+// ====== Supabase > Project Settings > API (pakai publishable/anon key SAJA; jangan pernah secret/service_role) ======
+const SUPABASE_URL = 'https://uaaqrfboaeadngamedzq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5LJSTpS4IYY4utmL8AEv3g_OOYWubTU';
+// =====================================================================================================
+const SHARED = location.hash === '#bersama';   // perangkat bersama: tombol "Peserta berikutnya" di halaman akhir
+const TEST = location.hash === '#uji';            // index.html#uji = mode uji (data ditandai is_test, tidak ikut ekspor)
+const app = document.getElementById('app'), PID = TEST ? 'pid-uji' : 'pid', $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const show = h => { app.innerHTML = h };
+const errBox = m => m ? `<p class="err" role="alert">${esc(m)}</p>` : '';
+const banner = TEST ? '<p class="warn">MODE UJI: data ditandai sebagai data uji dan tidak ikut ekspor penelitian.</p>' : '';
+const canStore = () => { try { localStorage.setItem('_t', '1'); localStorage.removeItem('_t'); return true } catch (e) { return false } };
+const INTRO = 'Berdasarkan video yang baru Anda tonton, isilah setiap pasangan kata sifat berikut. Tidak ada jawaban benar atau salah, pilih yang paling sesuai dengan kesan Anda.';
+const STEPS = ['Persetujuan', 'Identitas', 'Video 1', 'Kuesioner 1', 'Video 2', 'Kuesioner 2'];
+const prog = i => `<div class="prog"><div class="bar"><i style="width:${Math.round(i / STEPS.length * 100)}%"></i></div><p class="sm">${i < STEPS.length ? `Halaman ${i + 1} dari ${STEPS.length}: ${STEPS[i]}` : 'Selesai'}</p></div>`;
+let sb, cfg = {};
+// Semua aksi partisipan lewat RPC; urutan, tahap, dan validasi diputuskan database, bukan browser.
+const rpc = async (fn, args) => { const { data, error } = await sb.rpc(fn, args); if (error) throw new Error(error.message); return data };
+window.onhashchange = () => location.reload();
+
+async function init() {
+  if (SUPABASE_URL.startsWith('ISI_')) return show('<div class="box"><p class="err">Isi SUPABASE_URL dan SUPABASE_KEY di bagian atas file.</p></div>');
+  if (!window.supabase) return show('<div class="box"><p class="err">Pustaka gagal dimuat. Periksa koneksi internet lalu muat ulang.</p></div>');
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  if (location.hash === '#admin') return admin();
+  try { const { data } = await sb.from('settings').select('*'); (data || []).forEach(r => cfg[r.key] = r.value) } catch (e) {}
+  let pid = null; try { pid = localStorage.getItem(PID) } catch (e) {}
+  pid ? load(pid) : consent();
+}
+
+// ================= PARTISIPAN =================
+// Halaman 1: informed consent
+function consent() {
+  show(`<div class="box">${banner}${prog(0)}<span class="tag">Penelitian</span><h1>${esc(cfg.title || 'PENELITIAN PSIKOLOGI')}</h1><p>${esc(cfg.desc)}</p><p class="sm">Perkiraan durasi: ${esc(cfg.duration)}</p>
+  <h2>Persetujuan partisipasi</h2><div class="consent">${esc(cfg.consent)}</div>
+  <label class="chk"><input type="checkbox" id="ag"><span>Setuju</span></label>
+  <p><button id="go" disabled>Lanjut</button></p></div>`);
+  $('ag').onchange = () => $('go').disabled = !$('ag').checked;
+  $('go').onclick = identity;
+}
+// Halaman 2: identitas (sesi baru dibuat setelah tombol Mulai)
+function identity() {
+  show(`<div class="box">${banner}${prog(1)}<h1>Identitas</h1>
+  <fieldset><legend class="fl">Jenis kelamin</legend><div class="chips">${['Laki-laki', 'Perempuan'].map(g => `<label class="chip"><input type="radio" name="g" value="${g}">${g}</label>`).join('')}</div></fieldset>
+  <label class="fl" for="ins">Nama instansi</label><input type="text" id="ins" maxlength="120" autocomplete="organization" placeholder="Tuliskan nama instansi Anda">
+  <div id="m"></div><p><button id="go">Mulai</button><button id="bk" class="ghost">Kembali</button></p></div>`);
+  $('bk').onclick = consent;
+  $('go').onclick = async () => {
+    const g = (document.querySelector('input[name=g]:checked') || {}).value, ins = $('ins').value.trim();
+    if (!g || !ins) return $('m').innerHTML = errBox('Lengkapi jenis kelamin dan nama instansi.');
+    if (!canStore()) return $('m').innerHTML = errBox('Browser memblokir penyimpanan lokal (mode privat/in-app browser). Buka tautan ini di Chrome atau Safari biasa.');
+    $('go').disabled = true; $('go').textContent = 'Menyiapkan…';
+    try { const r = await rpc('start_session', { t: TEST, gen: g, inst: ins }); localStorage.setItem(PID, r.pid); load(r.pid) }
+    catch (e) { $('m').innerHTML = errBox(e.message); $('go').disabled = false; $('go').textContent = 'Mulai' }
+  };
+}
+async function load(pid) {
+  try {
+    const st = await rpc('get_state', { p: pid });
+    if (st.stage === 'done') {
+      show(`<div class="box">${banner}${prog(STEPS.length)}<h1>Terima kasih</h1><p style="white-space:pre-line">${esc(cfg.thanks)}</p><p class="sm">Kode partisipasi Anda: <b>${esc(st.code)}</b></p>${TEST || SHARED ? '<p><button id="again">Peserta berikutnya</button></p>' : ''}</div>`);
+      if ($('again')) $('again').onclick = () => { localStorage.removeItem(PID); consent() };   // peserta baru = sesi, assignment, dan data baru
+      return;
+    }
+    st.stage[0] === 'v' ? video(pid, st) : form(pid, st);
+  } catch (e) {
+    if (/tidak valid/.test(e.message)) { localStorage.removeItem(PID); return consent() }
+    show(`<div class="box">${errBox(e.message)}<button id="r">Muat ulang</button></div>`); $('r').onclick = () => load(pid);
+  }
+}
+function video(pid, st) {
+  if (!st.video_url) return show(`<div class="box">${errBox('Video belum tersedia. Hubungi peneliti.')}</div>`);
+  show(`<div class="box">${banner}${prog(st.order === 1 ? 2 : 4)}<h2>Video ${st.order} dari 2</h2><video id="v" src="${esc(st.video_url)}" controls playsinline preload="metadata" controlsList="nodownload noplaybackrate" disablePictureInPicture></video>
+  <p class="sm">Tonton video sampai selesai. Tombol di bawah aktif setelah video selesai.</p><div id="m"></div><p><button id="nx" disabled>Lanjut ke kuesioner</button></p></div>`);
+  const v = $('v'); let max = 0, hb = null;
+  const log = (dur, done) => rpc('log_video', { p: pid, ord: st.order, dur, done });
+  v.ontimeupdate = () => { if (v.currentTime > max && v.currentTime - max < 2) max = v.currentTime };
+  v.onseeking = () => { if (v.currentTime > max + .5) v.currentTime = max };   // tidak bisa melompat ke depan
+  v.onerror = () => $('m').innerHTML = errBox('Video gagal dimuat. Periksa koneksi lalu muat ulang halaman.');
+  v.onplay = () => { log(0, false).catch(() => {}); if (!hb) hb = setInterval(() => { if (!v.paused) log(max, false).catch(() => {}) }, 10000) };
+  const fin = async () => {
+    clearInterval(hb); hb = null; $('m').innerHTML = '';
+    try { await log(v.duration, true); $('nx').disabled = false }
+    catch (e) { $('m').innerHTML = errBox(e.message) + '<button id="rt">Coba kirim lagi</button>'; $('rt').onclick = fin }
+  };
+  v.onended = fin;
+  $('nx').onclick = () => { $('nx').disabled = true; load(pid) };
+}
+async function form(pid, st) {
+  const { data: qs, error } = await sb.from('questions').select('question_id,pos_label,neg_label').order('display_order').order('question_id');
+  if (error) return show(`<div class="box">${errBox(error.message)}</div>`);
+  const key = `draft-${pid}-${st.order}`, a = JSON.parse(localStorage.getItem(key) || '{}'); // draf lokal agar tidak hilang
+  const KQ = cfg.komp_question || 'Berdasarkan video, apakah komunikator punya kompetensi di bidang psikologi?';
+  const komp = `<fieldset class="it" id="fkomp"><legend class="fl">${esc(KQ)}</legend><div class="chips">${['Iya', 'Tidak'].map(o => `<label class="chip"><input type="radio" name="kompetensi" data-q="kompetensi" value="${o}" ${a.kompetensi === o ? 'checked' : ''}>${o}</label>`).join('')}</div></fieldset>`;
+  show(`<div class="box">${banner}${prog(st.order === 1 ? 3 : 5)}<h2>Kuesioner setelah video ${st.order}</h2><p class="intro">${esc(cfg.posttest_intro || INTRO)}</p>${qs.map(q => `<fieldset class="it" id="f${q.question_id}"><legend class="sr">${esc(q.pos_label)} – ${esc(q.neg_label)}</legend><div class="sd"><div class="l">${esc(q.pos_label)}</div><div class="pts">${
+    [1, 2, 3, 4, 5, 6, 7].map(o => `<label class="pt">${o}<input type="radio" name="q${q.question_id}" data-q="${q.question_id}" value="${o}" aria-label="${o}" ${a[q.question_id] === String(o) ? 'checked' : ''}></label>`).join('')}</div><div class="r">${esc(q.neg_label)}</div></div></fieldset>`).join('')}${komp}
+  <div id="m"></div><button id="s">Simpan jawaban</button></div>`);
+  app.querySelectorAll('[data-q]').forEach(el => el.onchange = () => { a[el.dataset.q] = el.value; localStorage.setItem(key, JSON.stringify(a)) });
+  $('s').onclick = async () => {
+    const miss = [...qs.filter(q => !a[q.question_id]).map(q => 'f' + q.question_id), ...(a.kompetensi ? [] : ['fkomp'])];
+    qs.forEach(q => $('f' + q.question_id).classList.toggle('bad', !a[q.question_id])); $('fkomp').classList.toggle('bad', !a.kompetensi);
+    if (miss.length) { $(miss[0]).scrollIntoView({ block: 'center' }); return $('m').innerHTML = errBox('Masih ada item yang belum dijawab (ditandai merah).') }
+    $('s').disabled = true; $('s').textContent = 'Menyimpan…';
+    try { await rpc('submit_posttest', { p: pid, ord: st.order, ans: a }); localStorage.removeItem(key); load(pid) }
+    catch (e) { $('m').innerHTML = errBox(e.message); $('s').disabled = false; $('s').textContent = 'Simpan jawaban' }
+  };
+}
+
+// ================= ADMIN (index.html#admin) =================
+const GRP = { A: 'eksperimen', B: 'eksperimen', C: 'kontrol', D: 'kontrol' }, SEQ = ['A→B', 'B→A', 'C→D', 'D→C'];
+const CHK = 'participant_id,video_id,video_order,competence_psych,submitted_at,participants!inner(code)';
+const RESP = 'participant_id,video_id,video_order,question_id,answer,submitted_at,participants!inner(code,gender,institution),questions(question_text,display_order)';
+const pivot = (rows, c = {}) => { const m = {}; rows.forEach(r => { const k = r.participant_id + '|' + r.video_order;   // 1 baris per partisipan x video
+  m[k] ??= { kode: r.participants_code, jenis_kelamin: r.participants_gender, instansi: r.participants_institution, kelompok: GRP[r.video_id], video: r.video_id, urutan_video: r.video_order }; m[k]['Q' + String(r.questions_display_order).padStart(2, '0')] = r.answer }); return Object.entries(m).map(([k, v]) => ({ ...v, kompeten_psikologi: c[k] ?? '' })) };
+const EXPORTS = [
+  ['responses_long', 'responses', RESP, 'response_id'],
+  ['responses_wide', 'responses', RESP, 'response_id', async r => pivot(r, Object.fromEntries((await fetchAll('video_checks', CHK, 'check_id')).map(x => [x.participant_id + '|' + x.video_order, x.competence_psych])))],
+  ['video_checks', 'video_checks', CHK, 'check_id'],
+  ['assignments', 'random_assignments', 'participant_id,block_number,sequence_code,grp,first_video_id,second_video_id,assigned_at,participants!inner(code,completion_status,gender,institution)', 'assignment_id'],
+  ['video_logs', 'video_logs', 'participant_id,video_id,video_order,started_at,completed_at,watch_duration,completion_status,participants!inner(code)', 'log_id']];
+const flat = r => Object.fromEntries(Object.entries(r).flatMap(([k, v]) => v && typeof v === 'object' && !Array.isArray(v) ? Object.entries(v).map(([k2, v2]) => [`${k}_${k2}`, v2]) : [[k, v]]));
+async function fetchAll(table, sel, ord) { const out = [];   // hanya data NON-uji
+  for (let f = 0; ; f += 1000) { const { data, error } = await sb.from(table).select(sel).eq('participants.is_test', false).order(ord).range(f, f + 999); if (error) throw new Error(error.message); out.push(...data); if (data.length < 1000) return out } }
+const toCsv = rows => { const h = [...new Set(rows.flatMap(Object.keys))], q = v => `"${String(v ?? '').replace(/"/g, '""')}"`; return '\uFEFF' + [h.join(','), ...rows.map(r => h.map(k => q(r[k])).join(','))].join('\n') };
+const download = (n, t) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([t], { type: 'text/csv' })); a.download = n; a.click() };
+
+async function admin() {
+  const { data: s } = await sb.auth.getSession(); if (!s.session) return login();
+  const { data } = await sb.from('admins').select('user_id'); // RLS: hanya admin yang melihat baris
+  data && data.length ? dash() : login('Akun ini bukan admin.');
+}
+function login(m = '') {
+  show(`<div class="box" style="max-width:380px"><h1>Masuk peneliti</h1><input type="email" id="em" placeholder="Email"><input type="password" id="pw" placeholder="Kata sandi"><div id="m">${errBox(m)}</div><button id="li">Masuk</button></div>`);
+  $('li').onclick = async () => { const { error } = await sb.auth.signInWithPassword({ email: $('em').value, password: $('pw').value }); error ? $('m').innerHTML = errBox(error.message) : admin() };
+}
+async function dash(m = '') {
+  const cnt = {}, head = f => f(sb.from('participants').select('*', { count: 'exact', head: true }));
+  try {
+    const [p, v, q, st, asg, tot, done, tst] = await Promise.all([
+      sb.from('participants').select('code,gender,institution,completion_status,created_at,random_assignments(block_number,first_video_id,second_video_id)').eq('is_test', false).order('created_at', { ascending: false }).limit(300),
+      sb.from('videos').select('*').order('video_id'), sb.from('questions').select('question_text,pos_label,neg_label'), sb.from('settings').select('value'),
+      fetchAll('random_assignments', 'sequence_code,participants!inner(is_test)', 'assignment_id'),
+      head(x => x.eq('is_test', false)), head(x => x.eq('is_test', false).eq('completion_status', 'completed')), head(x => x.eq('is_test', true))]);
+    asg.forEach(x => cnt[x.sequence_code] = (cnt[x.sequence_code] || 0) + 1);
+    const rows = p.data || [], as = r => Array.isArray(r.random_assignments) ? r.random_assignments[0] : r.random_assignments, vs = v.data || [], qq = q.data || [];
+    const ready = [[vs.filter(x => x.video_url).length === 4, '4 video sudah diunggah'], [qq.length === 14 && qq.every(x => x.pos_label && x.neg_label), 'Kuesioner tepat 14 item (kata positif & negatif terisi)'],
+      [!qq.some(x => x.question_text.startsWith('[GANTI]')) && !(st.data || []).some(x => x.value.startsWith('[GANTI]')), 'Tidak ada teks [GANTI] (item, persetujuan, durasi)']];
+    show(`<div class="box wide"><h1>Dashboard peneliti</h1><div id="m">${errBox(m)}</div>
+    <h2>Pemeriksaan kesiapan (hanya pengingat)</h2>${ready.map(r => `<p>${r[0] ? '✓' : '✗'} ${r[1]}</p>`).join('')}
+    <h2>Video</h2>${vs.map(x => `<p><b>${esc(x.video_id)}</b> ${esc(x.label)} <input type="file" accept="video/mp4" data-v="${esc(x.video_id)}"> <span class="sm">${esc(x.video_url) || 'belum diunggah'}</span></p>`).join('')}
+    <h2>Ekspor data penelitian (CSV, tanpa data uji)</h2>${EXPORTS.map((e, i) => `<button data-e="${i}">${e[0]}</button>`).join('')}
+    <h2>Progres: ${tot.count} partisipan, ${done.count} selesai</h2>
+    <p class="sm">Alokasi per urutan: ${SEQ.map((s, i) => `${s} = ${cnt[i + 1] || 0}`).join(' | ')}</p>
+    <h2>Data uji (#uji): ${tst.count} partisipan</h2><button id="dt">Hapus semua data uji</button>
+    <div class="sc"><table><tr><th>Kode</th><th>Gender</th><th>Instansi</th><th>Status</th><th>Blok</th><th>Urutan</th><th>Dibuat</th></tr>${rows.map(r => { const a = as(r) || {}; return `<tr><td>${esc(r.code)}</td><td>${esc(r.gender)}</td><td>${esc(r.institution)}</td><td>${esc(r.completion_status)}</td><td>${esc(a.block_number)}</td><td>${esc(a.first_video_id)}→${esc(a.second_video_id)}</td><td>${new Date(r.created_at).toLocaleString()}</td></tr>` }).join('')}</table></div>
+    <p><button id="rf">Muat ulang</button><button id="lo">Keluar</button></p></div>`);
+  } catch (e) { return show(`<div class="box">${errBox(e.message)}<button id="rf">Muat ulang</button></div>`), $('rf').onclick = () => dash() }
+  $('rf').onclick = () => dash(); $('lo').onclick = async () => { await sb.auth.signOut(); login() };
+  $('dt').onclick = async () => { if (!confirm('Hapus SEMUA data uji? Data penelitian tidak terpengaruh.')) return; try { dash('Terhapus: ' + await rpc('delete_test_data') + ' partisipan uji.') } catch (e) { dash(e.message) } };
+  app.querySelectorAll('[data-v]').forEach(el => el.onchange = async () => {
+    const id = el.dataset.v, path = `${id.toLowerCase()}-${crypto.randomUUID().slice(0, 8)}.mp4`, f = el.files[0]; if (!f) return; // nama netral + acak
+    $('m').innerHTML = '<p class="sm">Mengunggah…</p>';
+    const up = await sb.storage.from('videos').upload(path, f, { contentType: 'video/mp4' });
+    if (up.error) return $('m').innerHTML = errBox(up.error.message);
+    const url = sb.storage.from('videos').getPublicUrl(path).data.publicUrl;
+    const u = await sb.from('videos').update({ video_url: url }).eq('video_id', id); dash(u.error ? u.error.message : '');
+  });
+  app.querySelectorAll('[data-e]').forEach(b => b.onclick = async () => { const [n, t, s, o, post] = EXPORTS[b.dataset.e]; try { let r = (await fetchAll(t, s, o)).map(flat); if (post) r = await post(r); download(n + '.csv', toCsv(r)) } catch (e) { $('m').innerHTML = errBox(e.message) } });
+}
+init();
+</script></body></html>
